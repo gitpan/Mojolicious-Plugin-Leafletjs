@@ -57,7 +57,7 @@
          "web" : "https://github.com/battlemidget/Mojolicious-Plugin-Leafletjs"
       }
    },
-   "version" : "0.001",
+   "version" : "0.002",
    "x_contributors" : [
       "Adam Stokes <adam.stokes@ubuntu.com>"
    ]

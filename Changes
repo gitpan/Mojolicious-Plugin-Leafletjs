@@ -1,5 +1,8 @@
 Revision history for Mojolicious-Plugin-Leafletjs
 
+0.002  2013-09-04 23:03:23 EDT
+	- Add popups
+
 0.001  2013-09-04 22:31:24 EDT
         - Initial release
         - Supports creating a map

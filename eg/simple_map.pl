@@ -4,7 +4,8 @@ use Mojolicious::Lite;
 # Documentation browser under "/perldoc"
 plugin 'Leafletjs',
   { longitude => '35.9239',
-    latitude  => '-78.4611'
+    latitude  => '-78.4611',
+    zoomLevel => 18,
   };
 
 app->secret('testing a mojolicious plugin yo');
@@ -24,6 +25,9 @@ __DATA__
 <div id="map"></div>
 <%= leaflet %>
 <%= leaflet_marker 'marker1', '35.9239', '-78.4611' %>
+<%= leaflet_marker 'marker2', '35.9235', '-78.4610' %>
+<%= leaflet_popup 'marker1', 'I really made this popup marker!' %>
+<%= leaflet_popup 'marker2', 'OMG a second popup!' %>
 
 @@ layouts/default.html.ep
 <!DOCTYPE html>

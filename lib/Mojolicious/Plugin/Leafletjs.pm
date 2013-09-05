@@ -5,11 +5,11 @@ use File::Basename 'dirname';
 use File::Spec::Functions 'catdir';
 use File::ShareDir ':ALL';
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 
 my %defaults = (
     name      => 'map',
-    div       => 'map',
+    cssid     => 'map',
     longitude => undef,
     latitude  => undef,
     zoomLevel => 13,
@@ -49,7 +49,7 @@ sub register {
             my $marker_name = shift;
             my $longitude   = shift;
             my $latitude    = shift;
-	    my $parent_name = shift;
+            my $parent_name = shift;
 
             die "Need long/lat coordinates" unless $longitude && $latitude;
             $self->render(
@@ -62,6 +62,22 @@ sub register {
             );
         }
     );
+    $app->helper(
+        leaflet_popup => sub {
+            my $self        = shift;
+            my $marker_name = shift;
+            my $msg         = shift;
+
+            die "Need marker_name and message" unless $marker_name;
+            $self->render(
+                template    => 'leaflet_bindpopup',
+                partial     => 1,
+                marker_name => $marker_name,
+                msg         => $msg || "An empty message in popup",
+            );
+        }
+    );
+
     $app->helper(
         leaflet_include => sub {
             my $self = shift;
@@ -95,7 +111,7 @@ __DATA__
 
 @@ leaflet_template.html.ep
 %= javascript begin
-  var <%= $attrs->{name} %> = L.map('<%= $attrs->{div} %>').setView([<%= $attrs->{longitude} %>, <%= $attrs->{latitude} %>], <%= $attrs->{zoomLevel} %>);
+  var <%= $attrs->{name} %> = L.map('<%= $attrs->{cssid} %>').setView([<%= $attrs->{longitude} %>, <%= $attrs->{latitude} %>], <%= $attrs->{zoomLevel} %>);
   L.tileLayer('<%= $attrs->{tileLayer} %>', {
       maxZoom: <%= $attrs->{maxZoom} %>,
       attribution: '<%== $attrs->{attribution} %>'
@@ -105,6 +121,11 @@ __DATA__
 @@ leaflet_marker.html.ep
 %= javascript begin
   var <%= $marker_name %> = L.marker([<%= $longitude %>, <%= $latitude %>]).addTo(map);
+%= end
+
+@@ leaflet_bindpopup.html.ep
+%= javascript begin
+  <%= $marker_name %>.bindPopup("<%= $msg %>");
 %= end
 
 __END__
@@ -117,23 +138,22 @@ Mojolicious::Plugin::Leafletjs - A Mojolicious Plugin
 
 =head1 SYNOPSIS
 
-# Mojolicious
-$self->plugin(
-    'Leafletjs' => {
-        longitude => '75',
-        latitude  => '-0.5'
-    }
-);
+    # Mojolicious
+    $self->plugin(
+      'Leafletjs' => {
+          longitude => '75',
+          latitude  => '-0.5'
+      }
+    );
 
-# Mojolicious::Lite
-plugin 'Leafletjs',
-  { longitude => '75',
-    latitude  => '-0.5'
-  };
-
-# In your template
-  <%= leaflet %>
-  <%= leaflet_marker 'marker1', '75.02', '-35.02' %>
+    # Mojolicious::Lite
+    plugin 'Leafletjs',
+    { longitude => '75',
+      latitude  => '-0.5'
+    };
+    # In your template
+    <%= leaflet %>
+    <%= leaflet_marker 'marker1', '75.02', '-35.02' %>
 
 =head1 DESCRIPTION
 
@@ -143,29 +163,43 @@ Mojolicious::Plugin::Leafletjs is helpers for integrating simple maps via leafle
 
 =head2 B<leaflet>
 
-Accepts the following key/value:
+Accepts the following options:
 
 =over
 
-=item name => 'map'
+=item name
 
-=item div  => 'map'
+Name of map variable
 
-=item longitude => undef (*)
+=item longitude
 
-=item  latitude  => undef (*)
+Longitude
 
-=item zoomLevel => 13
+=item latitude
 
-=item tileLayer => 'map tile png'
+Latidude
 
-=item maxZoom => 18
+=item cssid
 
-=item attribution => 'copyright'
+CSS id of map
+
+=item zoomLevel
+
+Map zoomlevel
+
+=item tileLayer
+
+URL of map tile layer, defaults to a cloudmade.com tile
+
+=item maxZoom
+
+Max zoom into the map
+
+=item attribution
+
+Show some love for the leaflet team, openmap, and cloudmade map tiles
 
 =back
-
-* Is required
 
 =head2 B<leaflet_marker>
 
@@ -173,17 +207,39 @@ Accepts the following positional arguments:
 
 =over
 
-=item marker_name(*)
+=item marker_name
 
-=item longitude(*)
+Name of Map variable
 
-=item latitude(*)
+=item longitude
 
-=item parent_map(defaults to 'map')
+Longitude
+
+=item latitude
+
+Latitude
+
+=item parent_map
+
+Map variable
 
 =back
 
-* Is required
+=head2 B<leaflet_popup>
+
+Accepts the following positional arguments:
+
+=over
+
+=item marker_name
+
+Variable name of marker
+
+=item message
+
+Message to display in popup
+
+=back
 
 =head1 TODO
 
@@ -192,8 +248,6 @@ Accepts the following positional arguments:
 =item Add circles
 
 =item Add polygons
-
-=item Add popups
 
 =back
 

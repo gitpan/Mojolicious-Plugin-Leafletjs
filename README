@@ -2,14 +2,22 @@ NAME
     Mojolicious::Plugin::Leafletjs - A Mojolicious Plugin
 
 SYNOPSIS
-    # Mojolicious $self->plugin( 'Leafletjs' => { longitude => '75',
-    latitude => '-0.5' } );
+        # Mojolicious
+        $self->plugin(
+          'Leafletjs' => {
+              longitude => '75',
+              latitude  => '-0.5'
+          }
+        );
 
-    # Mojolicious::Lite plugin 'Leafletjs', { longitude => '75', latitude =>
-    '-0.5' };
-
-    # In your template <%= leaflet %> <%= leaflet_marker 'marker1', '75.02',
-    '-35.02' %>
+        # Mojolicious::Lite
+        plugin 'Leafletjs',
+        { longitude => '75',
+          latitude  => '-0.5'
+        };
+        # In your template
+        <%= leaflet %>
+        <%= leaflet_marker 'marker1', '75.02', '-35.02' %>
 
 DESCRIPTION
     Mojolicious::Plugin::Leafletjs is helpers for integrating simple maps
@@ -17,33 +25,60 @@ DESCRIPTION
 
 HELPERS
   leaflet
-    Accepts the following key/value:
+    Accepts the following options:
 
-    name => 'map'
-    div => 'map'
-    longitude => undef (*)
-    latitude => undef (*)
-    zoomLevel => 13
-    tileLayer => 'map tile png'
-    maxZoom => 18
-    attribution => 'copyright'
+    name
+        Name of map variable
 
-    * Is required
+    longitude
+        Longitude
+
+    latitude
+        Latidude
+
+    cssid
+        CSS id of map
+
+    zoomLevel
+        Map zoomlevel
+
+    tileLayer
+        URL of map tile layer, defaults to a cloudmade.com tile
+
+    maxZoom
+        Max zoom into the map
+
+    attribution
+        Show some love for the leaflet team, openmap, and cloudmade map
+        tiles
 
   leaflet_marker
     Accepts the following positional arguments:
 
-    marker_name(*)
-    longitude(*)
-    latitude(*)
-    parent_map(defaults to 'map')
+    marker_name
+        Name of Map variable
 
-    * Is required
+    longitude
+        Longitude
+
+    latitude
+        Latitude
+
+    parent_map
+        Map variable
+
+  leaflet_popup
+    Accepts the following positional arguments:
+
+    marker_name
+        Variable name of marker
+
+    message
+        Message to display in popup
 
 TODO
     Add circles
     Add polygons
-    Add popups
 
 CONTRIBUTIONS
     Always welcomed!
