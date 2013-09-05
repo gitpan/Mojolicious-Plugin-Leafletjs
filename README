@@ -3,21 +3,31 @@ NAME
 
 SYNOPSIS
         # Mojolicious
-        $self->plugin(
-          'Leafletjs' => {
-              longitude => '75',
-              latitude  => '-0.5'
-          }
-        );
+        $self->plugin('Leafletjs');
 
         # Mojolicious::Lite
-        plugin 'Leafletjs',
-        { longitude => '75',
-          latitude  => '-0.5'
-        };
+        plugin 'Leafletjs';
+
         # In your template
-        <%= leaflet %>
-        <%= leaflet_marker 'marker1', '75.02', '-35.02' %>
+        <%= leaflet {
+          name      => 'map1',
+          latitude => '35.9239',
+          longitude  => '-78.4611',
+          zoomLevel => 18,
+          markers   => [
+            {   name      => 'marker1',
+                latitude => '35.9239',
+                longitude  => '-78.4611',
+                popup     => 'A new message tada!',
+            },
+            {   name      => 'marker2',
+                latitude => '35.9235',
+                longitude  => '-78.4610',
+                popup     => 'A second popup here!',
+            }
+          ],
+        }
+        %>
 
 DESCRIPTION
     Mojolicious::Plugin::Leafletjs is helpers for integrating simple maps
@@ -52,32 +62,46 @@ HELPERS
         Show some love for the leaflet team, openmap, and cloudmade map
         tiles
 
-  leaflet_marker
-    Accepts the following positional arguments:
+    markers
+        Array of hashes containing the following key/value:
 
-    marker_name
-        Name of Map variable
+        name
+            Marker name
 
-    longitude
-        Longitude
+        longitude
+            Longitude
 
-    latitude
-        Latitude
+        latitude
+            Latitude
 
-    parent_map
-        Map variable
+        popup
+            A popup message
 
-  leaflet_popup
-    Accepts the following positional arguments:
+    circles
+        Array of hashes containing the following key/value
 
-    marker_name
-        Variable name of marker
+        name
+            Name of circle variable
 
-    message
-        Message to display in popup
+        longitude
+            longitude
+
+        latitude
+            latitude
+
+        color
+            circle color
+
+        fillColor
+            circle fill color
+
+        fillOpacity
+            circle opacity
+
+        radius
+            radius of circle in meters
 
 TODO
-    Add circles
     Add polygons
 
 CONTRIBUTIONS

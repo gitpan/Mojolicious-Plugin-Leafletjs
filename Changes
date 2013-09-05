@@ -1,5 +1,8 @@
 Revision history for Mojolicious-Plugin-Leafletjs
 
+0.003  2013-09-05 00:18:27 EDT
+	- Add circles
+
 0.002  2013-09-04 23:03:23 EDT
 	- Add popups
 

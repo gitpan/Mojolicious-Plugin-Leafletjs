@@ -2,11 +2,7 @@
 use Mojolicious::Lite;
 
 # Documentation browser under "/perldoc"
-plugin 'Leafletjs',
-  { longitude => '35.9239',
-    latitude  => '-78.4611',
-    zoomLevel => 18,
-  };
+plugin 'Leafletjs';
 
 app->secret('testing a mojolicious plugin yo');
 
@@ -21,13 +17,38 @@ __DATA__
 @@ index.html.ep
 % layout 'default';
 % title 'Welcome';
-<div>Showing a simple map with marker</div>
+<div><h1>Showing a simple map with markers, popups, and circles!</h1></div>
 <div id="map"></div>
-<%= leaflet %>
-<%= leaflet_marker 'marker1', '35.9239', '-78.4611' %>
-<%= leaflet_marker 'marker2', '35.9235', '-78.4610' %>
-<%= leaflet_popup 'marker1', 'I really made this popup marker!' %>
-<%= leaflet_popup 'marker2', 'OMG a second popup!' %>
+<%= leaflet {
+    name      => 'map1',
+    latitude => '35.9239',
+    longitude  => '-78.4611',
+    zoomLevel => 16,
+    markers   => [
+        {   name      => 'marker1',
+            latitude => '35.9239',
+            longitude  => '-78.4611',
+            popup     => 'A new message tada!',
+        },
+        {   name      => 'marker2',
+            latitude => '35.9235',
+            longitude  => '-78.4610',
+            popup     => 'A second popup here!',
+        }
+    ],
+    circles => [
+        {   name        => 'circly',
+            longitude   => '-78.4611',
+            latitude    => '35.9239',
+            color       => 'red',
+            fillColor   => '#f03',
+            fillOpacity => 0.5,
+            radius      => 500,
+        },
+      ],
+
+}
+%>
 
 @@ layouts/default.html.ep
 <!DOCTYPE html>

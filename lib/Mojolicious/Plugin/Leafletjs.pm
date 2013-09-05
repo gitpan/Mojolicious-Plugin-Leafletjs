@@ -5,7 +5,7 @@ use File::Basename 'dirname';
 use File::Spec::Functions 'catdir';
 use File::ShareDir ':ALL';
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 
 my %defaults = (
     name      => 'map',
@@ -20,60 +20,47 @@ my %defaults = (
       'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, '
       . '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, '
       . 'Imagery &copy; <a href="http://cloudmade.com">CloudMade</a>',
+    markers => [
+
+        # Example
+        # {   name      => 'Stubby',
+        #     longitude => undef,
+        #     latitude  => undef,
+        #     popup     => 'A new message here.',
+        # }
+    ],
+    circles => [
+
+        # Example:
+        # {   name        => 'circly',
+        #     longitude   => undef,
+        #     latitude    => undef,
+        #     color       => 'red',
+        #     fillColor   => '#f03',
+        #     fillOpacity => 0.5,
+        #     radius      => 500,
+        # }
+
+    ],
 );
+
+
+
 
 sub register {
     my ($plugin, $app) = @_;
     my (%conf) = (%defaults, %{$_[2] || {}});
-    push @{$app->renderer->paths},
-      catdir(dist_dir('Mojolicious-Plugin-Leafletjs'), 'templates');
     push @{$app->static->paths},
       catdir(dist_dir('Mojolicious-Plugin-Leafletjs'), 'public');
-
     push @{$app->renderer->classes}, __PACKAGE__;
-    push @{$app->static->classes},   __PACKAGE__;
-
     $app->helper(
         leaflet => sub {
             my $self = shift;
+            %conf = (%conf, %{shift()});
             $self->render(
                 template => 'leaflet_template',
                 partial  => 1,
                 attrs    => \%conf,
-            );
-        }
-    );
-    $app->helper(
-        leaflet_marker => sub {
-            my $self        = shift;
-            my $marker_name = shift;
-            my $longitude   = shift;
-            my $latitude    = shift;
-            my $parent_name = shift;
-
-            die "Need long/lat coordinates" unless $longitude && $latitude;
-            $self->render(
-                template    => 'leaflet_marker',
-                partial     => 1,
-                marker_name => $marker_name,
-                longitude   => $longitude,
-                latitude    => $latitude,
-                parent_map  => $parent_name || $conf{name},
-            );
-        }
-    );
-    $app->helper(
-        leaflet_popup => sub {
-            my $self        = shift;
-            my $marker_name = shift;
-            my $msg         = shift;
-
-            die "Need marker_name and message" unless $marker_name;
-            $self->render(
-                template    => 'leaflet_bindpopup',
-                partial     => 1,
-                marker_name => $marker_name,
-                msg         => $msg || "An empty message in popup",
             );
         }
     );
@@ -105,27 +92,35 @@ sub register {
 __DATA__
 
 @@ leaflet_include.html.ep
-
 %= stylesheet '/leaflet.css'
 %= javascript '/leaflet.js'
 
 @@ leaflet_template.html.ep
 %= javascript begin
-  var <%= $attrs->{name} %> = L.map('<%= $attrs->{cssid} %>').setView([<%= $attrs->{longitude} %>, <%= $attrs->{latitude} %>], <%= $attrs->{zoomLevel} %>);
+  var <%= $attrs->{name} %> = L.map('<%= $attrs->{cssid} %>').setView([<%= $attrs->{latitude} %>, <%= $attrs->{longitude} %>], <%= $attrs->{zoomLevel} %>);
   L.tileLayer('<%= $attrs->{tileLayer} %>', {
       maxZoom: <%= $attrs->{maxZoom} %>,
       attribution: '<%== $attrs->{attribution} %>'
   }).addTo(<%= $attrs->{name} %>);
-%= end
 
-@@ leaflet_marker.html.ep
-%= javascript begin
-  var <%= $marker_name %> = L.marker([<%= $longitude %>, <%= $latitude %>]).addTo(map);
-%= end
+% if (scalar @{$attrs->{markers}} > 0) {
+  % foreach my $marker (@{$attrs->{markers}}) {
+    var <%= $marker->{name} %> = L.marker([<%= $marker->{latitude} %>, <%= $marker->{longitude} %>]).addTo(<%= $attrs->{name} %>);
+    % if ($marker->{popup}) {
+      <%= $marker->{name} %>.bindPopup("<%= $marker->{popup} %>")
+    % }
+  % }
+% }
 
-@@ leaflet_bindpopup.html.ep
-%= javascript begin
-  <%= $marker_name %>.bindPopup("<%= $msg %>");
+% if (scalar @{$attrs->{circles}} > 0) {
+  % foreach my $circle (@{$attrs->{circles}}) {
+    var <%= $circle->{name} %> = L.circle([<%= $circle->{latitude} %>, <%= $circle->{longitude} %>], <%= $circle->{radius} %>, {
+      color: '<%= $circle->{color} %>',
+      fillColor: '<%= $circle->{fillColor} %>',
+      fillOpacity: <%= $circle->{fillOpacity} %>
+    }).addTo(<%= $attrs->{name} %>);
+  % }
+% }
 %= end
 
 __END__
@@ -139,21 +134,31 @@ Mojolicious::Plugin::Leafletjs - A Mojolicious Plugin
 =head1 SYNOPSIS
 
     # Mojolicious
-    $self->plugin(
-      'Leafletjs' => {
-          longitude => '75',
-          latitude  => '-0.5'
-      }
-    );
+    $self->plugin('Leafletjs');
 
     # Mojolicious::Lite
-    plugin 'Leafletjs',
-    { longitude => '75',
-      latitude  => '-0.5'
-    };
+    plugin 'Leafletjs';
+
     # In your template
-    <%= leaflet %>
-    <%= leaflet_marker 'marker1', '75.02', '-35.02' %>
+    <%= leaflet {
+      name      => 'map1',
+      latitude => '35.9239',
+      longitude  => '-78.4611',
+      zoomLevel => 18,
+      markers   => [
+        {   name      => 'marker1',
+            latitude => '35.9239',
+            longitude  => '-78.4611',
+            popup     => 'A new message tada!',
+        },
+        {   name      => 'marker2',
+            latitude => '35.9235',
+            longitude  => '-78.4610',
+            popup     => 'A second popup here!',
+        }
+      ],
+    }
+    %>
 
 =head1 DESCRIPTION
 
@@ -199,17 +204,15 @@ Max zoom into the map
 
 Show some love for the leaflet team, openmap, and cloudmade map tiles
 
-=back
+=item markers
 
-=head2 B<leaflet_marker>
-
-Accepts the following positional arguments:
+Array of hashes containing the following key/value:
 
 =over
 
-=item marker_name
+=item name
 
-Name of Map variable
+Marker name
 
 =item longitude
 
@@ -219,33 +222,53 @@ Longitude
 
 Latitude
 
-=item parent_map
+=item popup
 
-Map variable
+A popup message
 
 =back
 
-=head2 B<leaflet_popup>
+=item circles
 
-Accepts the following positional arguments:
+Array of hashes containing the following key/value
 
 =over
 
-=item marker_name
+=item name
 
-Variable name of marker
+Name of circle variable
 
-=item message
+=item longitude
 
-Message to display in popup
+longitude
+
+=item latitude
+
+latitude
+
+=item color
+
+circle color
+
+=item fillColor
+
+circle fill color
+
+=item fillOpacity
+
+circle opacity
+
+=item radius
+
+radius of circle in meters
+
+=back
 
 =back
 
 =head1 TODO
 
 =over
-
-=item Add circles
 
 =item Add polygons
 
