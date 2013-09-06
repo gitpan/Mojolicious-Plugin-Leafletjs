@@ -5,7 +5,7 @@ use File::Basename 'dirname';
 use File::Spec::Functions 'catdir';
 use File::ShareDir ':ALL';
 
-our $VERSION = '0.003';
+our $VERSION = '0.004';
 
 my %defaults = (
     name      => 'map',
@@ -107,7 +107,7 @@ __DATA__
   % foreach my $marker (@{$attrs->{markers}}) {
     var <%= $marker->{name} %> = L.marker([<%= $marker->{latitude} %>, <%= $marker->{longitude} %>]).addTo(<%= $attrs->{name} %>);
     % if ($marker->{popup}) {
-      <%= $marker->{name} %>.bindPopup("<%= $marker->{popup} %>")
+      <%= $marker->{name} %>.bindPopup("<%== $marker->{popup} %>");
     % }
   % }
 % }

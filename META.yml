@@ -3,6 +3,7 @@ abstract: 'A Mojolicious Plugin'
 author:
   - 'Adam Stokes <adamjs@cpan.org>'
 build_requires:
+  Test::Mojo: 0
   Test::More: 0.88
 configure_requires:
   Module::Build::Tiny: 0.026
@@ -22,11 +23,15 @@ no_index:
     - eg
     - examples
 requires:
+  File::Basename: 0
+  File::ShareDir: 0
+  File::Spec::Functions: 0
+  Mojo::Base: 0
   perl: 5.008005
 resources:
   bugtracker: https://github.com/battlemidget/Mojolicious-Plugin-Leafletjs/issues
   homepage: https://github.com/battlemidget/Mojolicious-Plugin-Leafletjs
   repository: https://github.com/battlemidget/Mojolicious-Plugin-Leafletjs.git
-version: 0.003
+version: 0.004
 x_contributors:
   - 'Adam Stokes <adam.stokes@ubuntu.com>'

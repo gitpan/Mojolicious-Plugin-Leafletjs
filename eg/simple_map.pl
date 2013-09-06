@@ -28,7 +28,7 @@ __DATA__
         {   name      => 'marker1',
             latitude => '35.9239',
             longitude  => '-78.4611',
-            popup     => 'A new message tada!',
+            popup     => '<h3>Header</h3>A new message tada!',
         },
         {   name      => 'marker2',
             latitude => '35.9235',
